@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Match.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -48,13 +49,13 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LolSharp\LolSharp.csproj">
-      <Project>{27acc709-9bb2-462d-bf06-3cc917ee32c4}</Project>
-      <Name>LolSharp</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\RedditSharp\RedditSharp.csproj">
+    <ProjectReference Include="..\RedditSharp-master\RedditSharp\RedditSharp.csproj">
       <Project>{a368cb75-75f0-4489-904d-b5cebb0fe624}</Project>
       <Name>RedditSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RiotSharp-master\RiotSharp\RiotSharp.csproj">
+      <Project>{3815e113-140c-4ee7-b0b9-7797c9352311}</Project>
+      <Name>RiotSharp</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
