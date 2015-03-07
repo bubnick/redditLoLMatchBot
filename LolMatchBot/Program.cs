@@ -185,7 +185,7 @@ namespace LolMatchBot
                         }
                         catch (Exception exp)
                         {
-                            Console.WriteLine("CommentID: " + c.Id + " caused application to crash");
+                            //Console.WriteLine("CommentID: " + c.Id + " is invalid");
                         }
 
                     }
