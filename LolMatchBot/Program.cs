@@ -25,11 +25,7 @@ namespace LolMatchBot
 
                 foreach (var c in s.Comments.Take(50))
                 {
-                    //This is going to be so inefficient eventually
-                    //Maybe not since limited to 50 comments at once
-                    //Eventually alreadyReplied will have to be moved to a master class, as we will be checking every several minutes
-                    //And if it is not stored, it will be regenerated
-                    //Check how reddit comment ids are generated, able to check based on last 50 somehow
+                    //TODO: store list in text file as well so that if bot needs to be rebooted, dont lose list to memory
                     
                     //Only check comments that are less than a day old
                     if (c.Body.Contains("Match: ") && c.Created.CompareTo(yesterday) >= 0  && !alreadyReplied.Contains(c.Id))
@@ -65,9 +61,9 @@ namespace LolMatchBot
                             }
 
                             StringBuilder sb = new StringBuilder();
-                            sb.AppendLine("**Match ID: " + matchID + "**\n\n***" + winner + " team won " + (winner == "Blue" ? (blueTotalKills + "-" + purpleTotalKills) : (purpleTotalKills + "-" + blueTotalKills)) + " in " + time.ToString() + "\n");
+                            sb.AppendLine("**Match ID: " + matchID + "**\n\n**" + winner + "** team won **" + (winner == "Blue" ? (blueTotalKills + "-" + purpleTotalKills) : (purpleTotalKills + "-" + blueTotalKills)) + "** in **" + time.ToString() + "**\n");
                             sb.AppendLine("***Blue***\n");
-                            sb.AppendLine("Champion | Level | KDA | Gold |  CS | Build");
+                            sb.AppendLine("Champion | Level | KDA | Gold |  CS | Item Build");
                             sb.AppendLine("---------|----------|----------|----------|----------|----------");
                             foreach (var p in match.Participants)
                             {
@@ -124,7 +120,7 @@ namespace LolMatchBot
                                 }
                             }
                             sb.AppendLine("\n***Purple***\n");
-                            sb.AppendLine("Champion | Level | KDA | Gold |  CS | Build");
+                            sb.AppendLine("Champion | Level | KDA | Gold |  CS | Item Build");
                             sb.AppendLine("---------|----------|----------|----------|----------|----------");
                             foreach (var p in match.Participants)
                             {
@@ -182,14 +178,14 @@ namespace LolMatchBot
                             }
 
                             sb.AppendLine("\n^^I ^^am ^^a ^^bot! ^^summon ^^me ^^with ^^'Match: ^^1234567890'. ^^Currently ^^NA ^^only!");
-                            sb.AppendLine("\n^^Maintained ^^by ^^/u/bubnick ^^v0.1");
+                            sb.AppendLine("\n^^Maintained ^^by ^^/u/bubnick ^^v1.0");
                             c.Reply(sb.ToString());
                             alreadyReplied.Add(c.Id);
                             Console.WriteLine("Commented on commentID: " + c.Id + ", matchID: " + matchID);
                         }
                         catch (Exception exp)
                         {
-
+                            Console.WriteLine("CommentID: " + c.Id + " caused application to crash");
                         }
 
                     }
