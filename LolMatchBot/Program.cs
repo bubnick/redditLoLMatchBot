@@ -12,29 +12,38 @@ namespace LolMatchBot
     {
         static void Main(string[] args)
         {
-            //Commit for school.
+            String acctName = "LeagueMatch";
+            String acctPassword = "D6rCfKgzehv5wdLY";
+            String subreddit = "/r/LeagueMatch";
+
+            // TODO: Should The match generation be done every loop rather then at start? Depends on if API handles new games after it has been generated
+            //Var cause lazy
             Match m = new Match();
             var r = new Reddit();
-            var u = r.LogIn("LeagueMatch", "D6rCfKgzehv5wdLY");
-            var s = r.GetSubreddit("/r/LeagueMatch");
-            List<String> alreadyReplied = new List<String>();
+            var u = r.LogIn(acctName, acctPassword);
+            var s = r.GetSubreddit(subreddit);
+
+            //List<String> alreadyReplied = new List<String>();
+            //FIX: Change this to hashset!
+            List<Comment> prevComments = new List<Comment>();
 
             while(true)
             {
-
+                //Get a datetime object for yesterday
                 DateTime yesterday = DateTime.Today.AddDays(-1);
 
                 foreach (var c in s.Comments.Take(50))
                 {
-                    //TODO: store list in text file as well so that if bot needs to be rebooted, dont lose list to memory
-                    //TODO: Check other servers besides NA!!!!
+                    //FIX: store list in text file as well so that if bot needs to be rebooted, dont lose list to memory
                     //Only check comments that are less than a day old
-                    if (c.Body.Contains("Match: ") && c.Created.CompareTo(yesterday) >= 0  && !alreadyReplied.Contains(c.Id))
+                    Comment comment = new Comment(c.Id, c.Body);
+                    if (c.Body.Contains("Match: ") && c.Created.CompareTo(yesterday) >= 0  && !prevComments.Contains(comment))
                     {
 
                         try
                         {
-                            //TODO: This is a gross and dirty way of doing it. Write a method to loop through the comment body and get a number
+                            //FIX: This is a gross and dirty way of doing it. Write a method to loop through the comment body and get a number
+                            //FIX: Also need to generate region from this
                             //Ie. if char is digit add to string then parse string
                             long matchID = long.Parse(c.Body.Substring(13, 11));
                             var match = m.getMatch(matchID, "NA");
@@ -180,11 +189,12 @@ namespace LolMatchBot
                                 }
                             }
 
-                            sb.AppendLine("\n^^I ^^am ^^a ^^bot! ^^summon ^^me ^^with ^^'Match: ^^1234567890'. ^^Currently ^^NA ^^only!");
-                            sb.AppendLine("\n^^Maintained ^^by ^^/u/bubnick ^^v1.0");
+                            sb.AppendLine("\n^^I ^^am ^^a ^^bot! ^^summon ^^me ^^with ^^'Match: ^^1234567890'.");
+                            sb.AppendLine("\n^^Maintained ^^by ^^/u/bubnick ^^v1.1");
                             c.Reply(sb.ToString());
-                            alreadyReplied.Add(c.Id);
+                            prevComments.Add(comment);
                             Console.WriteLine("Commented on commentID: " + c.Id + ", matchID: " + matchID);
+
                         }
                         catch (Exception exp)
                         {
