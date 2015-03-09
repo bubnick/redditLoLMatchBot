@@ -12,6 +12,7 @@ namespace LolMatchBot
     {
         static void Main(string[] args)
         {
+            //Commit for school.
             Match m = new Match();
             var r = new Reddit();
             var u = r.LogIn("LeagueMatch", "D6rCfKgzehv5wdLY");
