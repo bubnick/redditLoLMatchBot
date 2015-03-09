@@ -26,13 +26,15 @@ namespace LolMatchBot
                 foreach (var c in s.Comments.Take(50))
                 {
                     //TODO: store list in text file as well so that if bot needs to be rebooted, dont lose list to memory
-                    
+                    //TODO: Check other servers besides NA!!!!
                     //Only check comments that are less than a day old
                     if (c.Body.Contains("Match: ") && c.Created.CompareTo(yesterday) >= 0  && !alreadyReplied.Contains(c.Id))
                     {
 
                         try
                         {
+                            //TODO: This is a gross and dirty way of doing it. Write a method to loop through the comment body and get a number
+                            //Ie. if char is digit add to string then parse string
                             long matchID = long.Parse(c.Body.Substring(13, 11));
                             var match = m.getMatch(matchID, "NA");
                             var time = match.MatchDuration;
