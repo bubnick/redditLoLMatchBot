@@ -24,10 +24,10 @@ namespace LolMatchBot
             var s = r.GetSubreddit(subreddit);
 
             //List<String> alreadyReplied = new List<String>();
-            //FIX: Change this to hashset!
-            List<Comment> prevComments = new List<Comment>();
+            //Get comments here
+            HashSet<Comment> prevComments = getComments();
 
-            while(true)
+            while (true)
             {
                 //Get a datetime object for yesterday
                 DateTime yesterday = DateTime.Today.AddDays(-1);
@@ -37,7 +37,7 @@ namespace LolMatchBot
                     //FIX: store list in text file as well so that if bot needs to be rebooted, dont lose list to memory
                     //Only check comments that are less than a day old
                     Comment comment = new Comment(c.Id, c.Body);
-                    if (c.Body.Contains("Match: ") && c.Created.CompareTo(yesterday) >= 0  && !prevComments.Contains(comment))
+                    if (c.Body.Contains("Match: ") && c.Created.CompareTo(yesterday) >= 0 && !prevComments.Contains(comment))
                     {
 
                         try
@@ -72,6 +72,7 @@ namespace LolMatchBot
                                 }
                             }
 
+                            //TODO: Find a better way to write these tables, break out into methods as well since it is the same code with diff vars
                             StringBuilder sb = new StringBuilder();
                             sb.AppendLine("**Match ID: " + matchID + "**\n\n**" + winner + "** team won **" + (winner == "Blue" ? (blueTotalKills + "-" + purpleTotalKills) : (purpleTotalKills + "-" + blueTotalKills)) + "** in **" + time.ToString() + "**\n");
                             sb.AppendLine("***Blue***\n");
@@ -84,48 +85,48 @@ namespace LolMatchBot
                                 {
                                     long totalCS = p.Stats.MinionsKilled + p.Stats.NeutralMinionsKilled;
                                     List<string> items = new List<string>();
-                                
-                                    if(p.Stats.Item0 != null && p.Stats.Item0 != 0)
+
+                                    if (p.Stats.Item0 != null && p.Stats.Item0 != 0)
                                     {
                                         items.Add(m.getItem(p.Stats.Item0));
                                     }
 
-                                    if(p.Stats.Item1 != null && p.Stats.Item1 != 0)
+                                    if (p.Stats.Item1 != null && p.Stats.Item1 != 0)
                                     {
                                         items.Add(m.getItem(p.Stats.Item1));
                                     }
 
-                                    if(p.Stats.Item2 != null && p.Stats.Item2 != 0)
+                                    if (p.Stats.Item2 != null && p.Stats.Item2 != 0)
                                     {
                                         items.Add(m.getItem(p.Stats.Item2));
                                     }
 
-                                    if(p.Stats.Item3 != null && p.Stats.Item3 != 0)
+                                    if (p.Stats.Item3 != null && p.Stats.Item3 != 0)
                                     {
                                         items.Add(m.getItem(p.Stats.Item3));
                                     }
 
-                                    if(p.Stats.Item4 != null && p.Stats.Item4 != 0)
+                                    if (p.Stats.Item4 != null && p.Stats.Item4 != 0)
                                     {
                                         items.Add(m.getItem(p.Stats.Item4));
                                     }
 
-                                    if(p.Stats.Item5 != null && p.Stats.Item5 != 0)
+                                    if (p.Stats.Item5 != null && p.Stats.Item5 != 0)
                                     {
                                         items.Add(m.getItem(p.Stats.Item5));
                                     }
 
-                                    if(p.Stats.Item6 != null && p.Stats.Item6 != 0)
+                                    if (p.Stats.Item6 != null && p.Stats.Item6 != 0)
                                     {
                                         items.Add(m.getItem(p.Stats.Item6));
                                     }
 
                                     sb.Append(m.getChampIcon(p.ChampionId) + " | " + p.Stats.ChampLevel + " | " + p.Stats.Kills + "/" + p.Stats.Deaths + "/" + p.Stats.Assists + " | " + p.Stats.GoldEarned + " | " + totalCS + " | ");
                                     string strItems = "";
-                                    foreach(string str in items)
+                                    foreach (string str in items)
                                     {
                                         strItems += str + ", ";
-                                    
+
                                     }
                                     strItems = strItems.Substring(0, strItems.Length - 2);
                                     sb.AppendLine(strItems);
@@ -190,14 +191,26 @@ namespace LolMatchBot
                             }
 
                             sb.AppendLine("\n^^I ^^am ^^a ^^bot! ^^summon ^^me ^^with ^^'Match: ^^1234567890'.");
-                            sb.AppendLine("\n^^Maintained ^^by ^^/u/bubnick ^^v1.1");
+                            sb.AppendLine("\n^^Maintained ^^by ^^/u/bubnick ^^v1.2");
                             c.Reply(sb.ToString());
                             prevComments.Add(comment);
-                            Console.WriteLine("Commented on commentID: " + c.Id + ", matchID: " + matchID);
+                            bool success = storeComment(comment);
+
+                            if (success)
+                            {
+                                Console.WriteLine("Commented on commentID: " + c.Id + ", matchID: " + matchID + "\nSuccessfully saved comment.");
+                            }
+                            else
+                            {
+                                Console.WriteLine("Commented on commentID: " + c.Id + ", matchID: " + matchID + "\nUnsuccessfully saved comment.");
+
+                            }
+
 
                         }
                         catch (Exception exp)
                         {
+                            //Dont want to write anything as this will catch when a comment doesnt contain our string
                             //Console.WriteLine("CommentID: " + c.Id + " is invalid");
                         }
 
@@ -205,6 +218,39 @@ namespace LolMatchBot
                 }
 
 
+            }
+        }
+
+        private static HashSet<Comment> getComments()
+        {
+            HashSet<Comment> comments = new HashSet<Comment>();
+            CommentToSerialize commentToSerialize = new CommentToSerialize();
+
+            Serializer serializer = new Serializer();
+            //TODO: Add some error checking to check for corrupt vals
+            commentToSerialize = serializer.DeSerializeComment("prevComments.bin");
+            comments = commentToSerialize.Comments;
+
+            return comments;
+        }
+
+        private static bool storeComment(Comment comment)
+        {
+            HashSet<Comment> comments = new HashSet<Comment>();
+            comments.Add(comment);
+            CommentToSerialize commentToSerialize = new CommentToSerialize();
+            commentToSerialize.Comments = comments;
+
+            Serializer serializer = new Serializer();
+            try
+            {
+                serializer.SerializeComment("prevComments.bin", commentToSerialize);
+                return true;
+            }
+            catch(Exception exp)
+            {
+                Console.WriteLine(exp);
+                return false;
             }
         }
     }
