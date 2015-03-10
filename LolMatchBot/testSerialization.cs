@@ -8,7 +8,7 @@ namespace LolMatchBot
 {
     class testSerialization
     {
-        static void Main(string[] args)
+        /*static void Main(string[] args)
         {
             HashSet<Comment> comments = new HashSet<Comment>();
 
@@ -25,6 +25,6 @@ namespace LolMatchBot
             comments = null;
             commentToSerialize = serializer.DeSerializeComment("output.txt");
             comments = commentToSerialize.Comments;
-        }
+        }*/
     }
 }
