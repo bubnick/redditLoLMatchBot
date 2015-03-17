@@ -14,8 +14,12 @@ namespace LolMatchBot
         static void Main(string[] args)
         {
             String acctName = "LeagueMatch";
-            String acctPassword = "D6rCfKgzehv5wdLY";
+            String acctPassword = "";
             String subreddit = "/r/LeagueMatch";
+
+            //Prompt for pw
+            Console.WriteLine("Enter password for: " + acctName);
+            acctPassword = Console.ReadLine();
 
             // TODO: Should The match generation be done every loop rather then at start? Depends on if API handles new games after it has been generated
             //Var cause lazy
